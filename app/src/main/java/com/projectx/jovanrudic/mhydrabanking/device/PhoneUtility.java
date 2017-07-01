@@ -1,8 +1,10 @@
-package com.projectx.jovanrudic.mhydrabanking;
+package com.projectx.jovanrudic.mhydrabanking.device;
 
 import android.content.Context;
 import android.os.Build;
 import android.telephony.TelephonyManager;
+
+import com.projectx.jovanrudic.mhydrabanking.model.PhoneModel;
 
 /**
  * Created by jovanrudic on 6/30/17.

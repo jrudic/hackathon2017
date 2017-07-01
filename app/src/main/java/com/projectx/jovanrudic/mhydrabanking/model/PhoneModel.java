@@ -1,4 +1,4 @@
-package com.projectx.jovanrudic.mhydrabanking;
+package com.projectx.jovanrudic.mhydrabanking.model;
 
 /**
  * Created by jovanrudic on 6/30/17.
