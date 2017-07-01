@@ -1,9 +1,8 @@
 package com.projectx.jovanrudic.mhydrabanking;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Address;
-import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -31,12 +30,6 @@ import com.projectx.jovanrudic.mhydrabanking.model.LocationModel;
 import com.projectx.jovanrudic.mhydrabanking.model.PhoneModel;
 import com.projectx.jovanrudic.mhydrabanking.model.ResponseMessage;
 
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Locale;
-
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
@@ -48,7 +41,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     LocationDBHelper mLocationDBHelper;
 
 
-    private Button mAddLocationToSecureListButton;
     private CheckBox mLicenseCheckBox;
 
     private GPSTracker.ILocationCallback locationCallback = new GPSTracker.ILocationCallback() {
@@ -65,9 +57,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        startService(new Intent(this, HydraService.class));
+
         mLocationDBHelper = new LocationDBHelper(getApplicationContext(), LocationDBHelper
                 .DATABASE_NAME, null, LocationDBHelper.DATABASE_VERSION);
-        mAddLocationToSecureListButton = (Button) findViewById(R.id.addToSecureLocationButtone);
+        Button mAddLocationToSecureListButton = (Button) findViewById(R.id.addToSecureLocationButtone);
         mLicenseCheckBox = (CheckBox) findViewById(R.id.checkBox);
 
         mAddLocationToSecureListButton.setOnClickListener(new View.OnClickListener() {
@@ -134,49 +128,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void initData() {
         PhoneModel pm = PhoneUtility.getPhoneData(this);
-        LocationModel lm = getLocationData();
+        LocationModel lm = LocationUtl.getLocationData(this, mLatitude, mLongitude);
 
         sendData(lm, pm);
         saveDataToLocalDataBase(lm);
-    }
-
-    private LocationModel getLocationData(){
-        Geocoder geocoder;
-        List<Address> addresses;
-        geocoder = new Geocoder(this, Locale.getDefault());
-
-        String address = "";
-        String city = "";
-        String state = "";
-        String country = "";
-        String postalCode = "";
-        String knownName = "";
-
-        try {
-            addresses = geocoder.getFromLocation(mLatitude, mLongitude, 1);
-
-            String tempAddress = addresses.get(0).getAddressLine(0);
-            address = tempAddress == null ? "" : tempAddress;
-
-            String tempCity = addresses.get(0).getLocality();
-            city = tempCity == null ? "" : tempCity;
-
-            String tempState = addresses.get(0).getAdminArea();
-            state = tempState == null ? "" : tempState;
-
-            String tempCountry = addresses.get(0).getCountryName();
-            country = tempCountry == null ? "" : tempCountry;
-
-            String tempPostalCode = addresses.get(0).getPostalCode();
-            postalCode = tempPostalCode == null ? "" : tempPostalCode;
-
-            knownName = LocationUtl.getCompleteAddressString(this, mLatitude, mLongitude);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return new LocationModel(Double.toString(mLatitude), Double.toString
-                (mLongitude), getTimeStamp(), address, city, state, country, postalCode, knownName);
     }
 
     private void saveDataToLocalDataBase(LocationModel lm) {
@@ -268,23 +223,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             mLongitude = mGpsTracker.getLongitude();
         }
 
-            CameraUpdate cameraUpdate = null;
+        CameraUpdate cameraUpdate = null;
 
-            try {
-                cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(mLatitude, mLongitude),
-                        DEFAULT_MAP_ZOOM);
-            } catch (NullPointerException e) {
-                //Shit happens YOLO Hackathon
-            }
+        try {
+            cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(mLatitude, mLongitude),
+                    DEFAULT_MAP_ZOOM);
+        } catch (NullPointerException e) {
+            //Shit happens YOLO Hackathon
+        }
 
-            if (cameraUpdate != null) {
-                mMap.moveCamera(cameraUpdate);
-            }
-    }
-
-    private String getTimeStamp(){
-        Calendar c = Calendar.getInstance();
-        SimpleDateFormat dateformat = new SimpleDateFormat("dd-MMM-yyyy hh:mm:ss aa");
-        return dateformat.format(c.getTime());
+        if (cameraUpdate != null) {
+            mMap.moveCamera(cameraUpdate);
+        }
     }
 }
