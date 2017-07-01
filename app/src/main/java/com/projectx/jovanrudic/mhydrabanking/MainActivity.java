@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         PhoneModel pm = PhoneUtility.getPhoneData(this);
         LocationModel lm = getLocationData();
 
-        sendData(lm);
+        sendData(lm, pm);
         saveDataToLocalDataBase(lm);
     }
 
@@ -140,11 +140,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         try {
             addresses = geocoder.getFromLocation(mLatitude, mLongitude, 1);
-            address = addresses.get(0).getAddressLine(0);
-            city = addresses.get(0).getLocality();
-            state = addresses.get(0).getAdminArea();
-            country = addresses.get(0).getCountryName();
-            postalCode = addresses.get(0).getPostalCode();
+
+            String tempAddress = addresses.get(0).getAddressLine(0);
+            address = tempAddress == null ? "" : tempAddress;
+
+            String tempCity = addresses.get(0).getLocality();
+            city = tempCity == null ? "" : tempCity;
+
+            String tempState = addresses.get(0).getAdminArea();
+            state = tempState == null ? "" : tempState;
+
+            String tempCountry = addresses.get(0).getCountryName();
+            country = tempCountry == null ? "" : tempCountry;
+
+            String tempPostalCode = addresses.get(0).getPostalCode();
+            postalCode = tempPostalCode == null ? "" : tempPostalCode;
+
             knownName = LocationUtl.getCompleteAddressString(this, mLatitude, mLongitude);
         } catch (IOException e) {
             e.printStackTrace();
@@ -158,7 +169,29 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mLocationDBHelper.createRow(lm.getTimeStamp(), lm.getLat(), lm.getLong());
     }
 
-    private void sendData(LocationModel lm) {
+    private void sendData(LocationModel lm, PhoneModel pm) {
+        sendLocationData(lm);
+        sendPhoneData(pm);
+    }
+
+    private void sendPhoneData(PhoneModel pm) {
+        ServiceApi.sendPhoneData(pm.getImei(), pm.getPhoneNumber(), pm.getPhoneNumber(), pm.getOs(),
+                new ServiceApi.Listener<ResponseMessage>() {
+                    @Override
+                    public void onSuccess(ResponseMessage response) {
+                        if (response.getError() == 0) {
+                            Log.i("Test", "win2");
+                        }
+                    }
+
+                    @Override
+                    public void onError(VolleyError error) {
+                        Log.i("Test", "not2");
+                    }
+                });
+    }
+
+    private void sendLocationData(LocationModel lm) {
         ServiceApi.sendLocationData(lm.getLat(), lm.getLong(), lm.getAddressailable(), lm.getCity
                 (), lm.getState(), lm.getCountry(), lm.getPostalCode(), lm.getKnownName(), lm
                 .getTimeStamp(), new ServiceApi.Listener<ResponseMessage>() {
@@ -175,6 +208,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
     }
+
 
     @Override
     public void onMapReady(final GoogleMap map) {

@@ -33,6 +33,12 @@ public class ServiceApi {
     public static final String KNOWN_ADDRESS = "known_address";
     public static final String TIME_STAMP = "time_stamp";
     public static final String FAKE_USER = "123";
+    public static final String IMEI = "imei";
+    public static final String PHONE_NUMBER = "phone_number";
+    public static final String PHONE_MODEL = "phone_model";
+    public static final String OS = "os";
+    public static final String ERROR_MESSAGE = "error_message";
+    public static final String ERROR = "error";
 
     public interface Listener<T> {
         void onSuccess(T response);
@@ -51,6 +57,7 @@ public class ServiceApi {
                                       final String knownAddress,
                                       final String timeStamp,
                                         @NonNull final Listener<ResponseMessage> callback) {
+
         StringRequest stringRequest = new StringRequest(Request.Method.POST, Endpoint.LOCATION, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -58,7 +65,6 @@ public class ServiceApi {
                     JSONObject jo = new JSONObject(response);
                     String errorMessage = jo.getString("error_message");
                     int error = jo.getInt("error");
-
                     callback.onSuccess(new ResponseMessage(error, errorMessage));
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -86,7 +92,47 @@ public class ServiceApi {
                 params.put(TIME_STAMP, timeStamp);
                 return params;
             }
+        };
 
+        MyApplication.getInstance().addToRequestQueue(stringRequest);
+    }
+
+    public static void sendPhoneData(final String imei,
+                                        final String phone_number,
+                                        final String phone_model,
+                                        final String os,
+                                        @NonNull final Listener<ResponseMessage> callback) {
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, Endpoint.DEVICE, new
+                Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jo = new JSONObject(response);
+                    String errorMessage = jo.getString(ERROR_MESSAGE);
+                    int error = jo.getInt(ERROR);
+                    callback.onSuccess(new ResponseMessage(error, errorMessage));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                callback.onError(error);
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put(USER_ID, FAKE_USER); //User id will be provided from bank
+                params.put(IMEI, imei);
+                params.put(PHONE_NUMBER, phone_number);
+                params.put(PHONE_MODEL, phone_model);
+                params.put(OS, os);
+                return params;
+            }
         };
 
         MyApplication.getInstance().addToRequestQueue(stringRequest);
