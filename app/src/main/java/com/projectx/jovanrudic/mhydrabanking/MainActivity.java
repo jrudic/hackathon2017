@@ -61,7 +61,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-      //  mLocationDBHelper = LocationDBHelper.getLocationDataBaseHelper(MainActivity.this);
+        mLocationDBHelper = new LocationDBHelper(getApplicationContext(), LocationDBHelper
+                .DATABASE_NAME, null, LocationDBHelper.DATABASE_VERSION);
         mAddLocationToSecureListButton = (Button) findViewById(R.id.addToSecureLocationButtone);
         mLicenseCheckBox = (CheckBox) findViewById(R.id.checkBox);
 
@@ -118,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         LocationModel lm = getLocationData();
 
         sendData();
-       // saveDataToLocalDataBase(lm);
+        saveDataToLocalDataBase(lm);
     }
 
     private LocationModel getLocationData(){
@@ -135,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         try {
             addresses = geocoder.getFromLocation(mLatitude, mLongitude, 1);
-            address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+            address = addresses.get(0).getAddressLine(0);
             city = addresses.get(0).getLocality();
             state = addresses.get(0).getAdminArea();
             country = addresses.get(0).getCountryName();
@@ -144,7 +145,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         } catch (IOException e) {
             e.printStackTrace();
         }
-        // result to returned, by documents it recommended 1 to 5
 
         return new LocationModel(Double.toString(mLatitude), Double.toString
                 (mLongitude), getTimeStamp(), address, city, state, country, postalCode, knownName);

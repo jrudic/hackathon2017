@@ -19,21 +19,11 @@ public class LocationDBHelper extends SQLiteOpenHelper {
     public static final String LATITUTE = "latitute";
     public static final String LONGITUTE = "longitute";
     public static final String TIME_STAMP = "timeStamp";
-    private static LocationDBHelper sInstance = null;
     private Context mContext;
 
     public LocationDBHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
         mContext = context;
-    }
-
-    public static synchronized LocationDBHelper getLocationDataBaseHelper(Context context) {
-        if (sInstance == null) {
-            sInstance = new LocationDBHelper(context.getApplicationContext(), DATABASE_NAME,
-                    null, DATABASE_VERSION);
-            sInstance.getWritableDatabase();
-        }
-        return sInstance;
     }
 
     class Row extends Object {
@@ -50,22 +40,22 @@ public class LocationDBHelper extends SQLiteOpenHelper {
                     + "longitute text not null "
                     +");";
 
-    private static final String DATABASE_NAME = "HYDRADATABASE.db";
+    public static final String DATABASE_NAME = "HYDRADATABASE.db";
 
     private static final String DATABASE_TABLE = "LOCATIONS";
 
-    private static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 1;
 
-    private SQLiteDatabase database;
+    private SQLiteDatabase mDatabase;
 
     public void close() {
-        database.close();
+        mDatabase.close();
     }
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-            database = mContext.openOrCreateDatabase(DATABASE_NAME, Context.MODE_PRIVATE, null);
-            database.execSQL(DATABASE_CREATE);
+            mDatabase = mContext.openOrCreateDatabase(DATABASE_NAME, Context.MODE_PRIVATE, null);
+         mDatabase.execSQL(DATABASE_CREATE);
     }
 
     @Override
@@ -78,18 +68,20 @@ public class LocationDBHelper extends SQLiteOpenHelper {
         initialValues.put("timeStamp", timeStamp);
         initialValues.put("latitute", latitute);
         initialValues.put("longitute", longitute);
-        database.insert(DATABASE_TABLE, null, initialValues);
+       if(mDatabase != null) {
+           mDatabase.insert(DATABASE_TABLE, null, initialValues);
+       }
     }
 
     public void deleteRow(long rowId) {
-        database.delete(DATABASE_TABLE, "_id=" + rowId, null);
+        mDatabase.delete(DATABASE_TABLE, "_id=" + rowId, null);
     }
 
     public List<Row> fetchAllRows() {
         ArrayList<Row> ret = new ArrayList<>();
         try {
             Cursor c =
-                    database.query(DATABASE_TABLE, new String[] {
+                    mDatabase.query(DATABASE_TABLE, new String[] {
                             "_id", TIME_STAMP, LATITUTE, LONGITUTE}, null, null, null, null, null);
             int numRows = c.getColumnCount();
             c.moveToFirst();
