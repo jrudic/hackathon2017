@@ -8,11 +8,13 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.Toast;
 
+import com.android.volley.VolleyError;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -21,11 +23,13 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.projectx.jovanrudic.mhydrabanking.api.ServiceApi;
 import com.projectx.jovanrudic.mhydrabanking.device.PhoneUtility;
 import com.projectx.jovanrudic.mhydrabanking.location.GPSTracker;
 import com.projectx.jovanrudic.mhydrabanking.location.LocationUtl;
 import com.projectx.jovanrudic.mhydrabanking.model.LocationModel;
 import com.projectx.jovanrudic.mhydrabanking.model.PhoneModel;
+import com.projectx.jovanrudic.mhydrabanking.model.ResponseMessage;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -118,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         PhoneModel pm = PhoneUtility.getPhoneData(this);
         LocationModel lm = getLocationData();
 
-        sendData();
+        sendData(lm);
         saveDataToLocalDataBase(lm);
     }
 
@@ -154,8 +158,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mLocationDBHelper.createRow(lm.getTimeStamp(), lm.getLat(), lm.getLong());
     }
 
-    private void sendData() {
-        //TODO send data to internet :)
+    private void sendData(LocationModel lm) {
+        ServiceApi.sendLocationData(lm.getLat(), lm.getLong(), lm.getAddressailable(), lm.getCity
+                (), lm.getState(), lm.getCountry(), lm.getPostalCode(), lm.getKnownName(), lm
+                .getTimeStamp(), new ServiceApi.Listener<ResponseMessage>() {
+            @Override
+            public void onSuccess(ResponseMessage response) {
+                if (response.getError() == 0){
+                    Log.i("Test", "win");
+                }
+            }
+
+            @Override
+            public void onError(VolleyError error) {
+                Log.i("Test", "not");
+            }
+        });
     }
 
     @Override
