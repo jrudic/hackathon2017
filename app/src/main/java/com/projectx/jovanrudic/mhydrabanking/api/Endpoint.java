@@ -11,4 +11,5 @@ public class Endpoint {
     // example
     public static final String LOCATION = BASE_URL + "/location";
     public static final String DEVICE = BASE_URL + "/device";
+    public static final String SAFE_LOCATION = BASE_URL + "/safe_location";
 }

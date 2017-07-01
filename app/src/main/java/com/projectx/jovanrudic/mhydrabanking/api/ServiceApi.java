@@ -137,4 +137,41 @@ public class ServiceApi {
 
         MyApplication.getInstance().addToRequestQueue(stringRequest);
     }
+
+    public static void sendSafeLocationData(final String latitude,
+                                            final String longitude,
+                                     @NonNull final Listener<ResponseMessage> callback) {
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, Endpoint.SAFE_LOCATION, new
+                Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject jo = new JSONObject(response);
+                            String errorMessage = jo.getString(ERROR_MESSAGE);
+                            int error = jo.getInt(ERROR);
+                            callback.onSuccess(new ResponseMessage(error, errorMessage));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                callback.onError(error);
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put(USER_ID, FAKE_USER); //User id will be provided from bank
+                params.put(LATITUDE, latitude);
+                params.put(LONGITUDE, longitude);
+                return params;
+            }
+        };
+
+        MyApplication.getInstance().addToRequestQueue(stringRequest);
+    }
 }

@@ -74,7 +74,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View view) {
                 if(mLicenseCheckBox.isChecked()){
-                    //TODO JR Send new location on server
+                    ServiceApi.sendSafeLocationData(Double.toString(mLatitude), Double
+                                    .toString(mLongitude),
+                            new ServiceApi.Listener<ResponseMessage>() {
+                                @Override
+                                public void onSuccess(ResponseMessage response) {
+                                    if (response.getError() == 0) {
+                                        Log.i("Test", "win2");
+                                    }
+                                }
+
+                                @Override
+                                public void onError(VolleyError error) {
+                                    Log.i("Test", "not2");
+                                }
+                            });
                     Toast.makeText(MainActivity.this, "New secure location is saved!", Toast
                             .LENGTH_SHORT).show();
                 } else {
