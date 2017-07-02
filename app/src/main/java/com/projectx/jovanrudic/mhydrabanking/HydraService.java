@@ -39,11 +39,11 @@ public class HydraService extends Service {
             public void run() {
                 LocationModel lm = LocationUtl.getUserLocation(context);
                 sendLocationData(lm);
-                handler.postDelayed(runnable, 10000);
+                handler.postDelayed(runnable, 10000000);
             }
         };
 
-        handler.postDelayed(runnable, 15000);
+        handler.postDelayed(runnable, 1500000);
     }
 
     @Override
