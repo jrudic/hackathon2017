@@ -6,7 +6,7 @@ package com.projectx.jovanrudic.mhydrabanking.api;
 
 public class Endpoint {
 
-    public static final String BASE_URL = "www.pornhub.com"; //todo
+    public static final String BASE_URL = "http://api.4example.rs/hackaton/dev/v1";
 
     // example
     public static final String USER = BASE_URL + "/user";
