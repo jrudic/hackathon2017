@@ -39,7 +39,7 @@ public class LocationUtl {
         return strAdd;
     }
 
-    public static LocationModel getLocationData(Context context, Double lat, Double lng){
+    public static LocationModel getLocationData(Context context, Double lat, Double lng) {
         Geocoder geocoder;
         List<Address> addresses;
         geocoder = new Geocoder(context, Locale.getDefault());
@@ -67,18 +67,22 @@ public class LocationUtl {
             country = tempCountry == null ? "" : tempCountry;
 
             String tempPostalCode = addresses.get(0).getPostalCode();
-            postalCode =  tempPostalCode == null ? "" : tempPostalCode;
+            postalCode = tempPostalCode == null ? "" : tempPostalCode;
 
             knownName = LocationUtl.getCompleteAddressString(context, lat, lng);
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (IndexOutOfBoundsException ie) {
+            ie.printStackTrace();
+            return new LocationModel(Double.toString(lat), Double.toString
+                    (lng), getTimeStamp(), "", "", "", "", "", "");
         }
 
         return new LocationModel(Double.toString(lat), Double.toString
                 (lng), getTimeStamp(), address, city, state, country, postalCode, knownName);
     }
 
-    private static String getTimeStamp(){
+    private static String getTimeStamp() {
         Calendar c = Calendar.getInstance();
         SimpleDateFormat dateformat = new SimpleDateFormat("dd-MMM-yyyy hh:mm:ss aa");
         return dateformat.format(c.getTime());
