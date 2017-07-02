@@ -16,8 +16,12 @@ public class PhoneUtility {
         TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context
                 .TELEPHONY_SERVICE);
 
-        String imei =  telephonyManager.getDeviceId();
-        String phoneNumber = telephonyManager.getLine1Number();
+        String tempImei = telephonyManager.getDeviceId();
+        String imei =  tempImei == null ? "" : tempImei;
+
+        String tempPhoneNumber = telephonyManager.getLine1Number();
+        String phoneNumber =  tempPhoneNumber == null ? "" : tempPhoneNumber;
+
         String os = Build.VERSION.RELEASE;
         String deviceModel = Build.MODEL;
         return new PhoneModel(imei, phoneNumber, deviceModel, os);
